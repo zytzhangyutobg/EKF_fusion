@@ -1,0 +1,25 @@
+<launch>
+    <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot" args="/ekf/ekf_odom/pose/pose/position/x:y:z /gt_pos_odom/pose/pose/position/x:y:z " />
+    <node name="rosbag" pkg="rosbag" type="play" args=" $(find ekf)/bag/pnp_flow_semisync_2019-04-15-12-30-34.bag -r 1" />
+    
+    <node pkg="ekf" type="ekf" name="ekf" output="screen">
+        <remap from="~imu" to="/dji_sdk_1/dji_sdk/imu"/>
+        <remap from="~tag_odom" to="/odom"/>
+    </node>
+	
+	<node pkg="optical_flow" type="optical_flow" name="opticalflow_node" output="log">
+        <remap from="~image_raw" to="/camera/image_raw"/>
+	<remap from="~opti_tf_odom" to="/ekf/opti_tf_odom"/>
+	
+    </node>
+	
+    <node pkg="tag_detector" type="tag_detector" name="tag_detector" output="log">
+        <remap from="~image_raw" to="/camera/image_raw"/>
+	<remap from="~odom_ref" to="/odom"/>
+        <param name="cam_cal_file" type="string" value="$(find ekf)/config/p2p3_cam.yml"/>
+        <param name="board_config_file" type="string" value="$(find ekf)/config/test_3-1.yml"/>
+    </node>
+
+    
+    <!--/ekf/cam_odom_ekf/twist/twist/linear/x:y:z-->
+</launch>
